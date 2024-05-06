@@ -13,7 +13,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        $users=User::all();
+        return $users;
     }
 
     /**
@@ -47,4 +48,8 @@ class UserController extends Controller
     {
         //
     }
+    public function deleteAllUsers(Request $request){
+        User::truncate();
+        return 'all users deleted seuccessfylly !! ';
+    } 
 }
