@@ -8,6 +8,10 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    // public function __construct()
+    // {
+    //     $this->middleware('auth:sanctum');
+    // }
     /**
      * Display a listing of the resource.
      */
@@ -22,8 +26,16 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = new User();
+    
+        $user->name = $request->input('name');
+        $user->email = $request->input('email');
+        $user->password = bcrypt($request->input('password'));
+        $user->role = $request->input('role');
+        $user->save();
+        return response()->json(['message' => 'User created successfully'], 201);
     }
+    
 
     /**
      * Display the specified resource.
