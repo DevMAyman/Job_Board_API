@@ -6,32 +6,63 @@ use App\Http\Controllers\Api\UserController;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie; // Add this line
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
  
+
 Route::post('/sanctum/token', function (Request $request) {
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-        'device_name' => 'required',
-    ]);
- 
-    $user = User::where('email', $request->email)->first();
- 
-    if (! $user || ! Hash::check($request->password, $user->password)) {
-        throw ValidationException::withMessages([
-            'email' => ['The provided credentials are incorrect.'],
-        ]);
+    if (Auth::attempt($request->only('email', 'password'))) {
+        $user = Auth::user();
+
+        $userData = [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+        ];
+
+        // Create a token with Sanctum and attach it to the user
+        $token = $user->createToken($request->device_name, ['userData' => $userData]);
+
+        // Set the token as an HTTP-only cookie
+        $cookie = cookie('token', $token->plainTextToken, 60); // Set cookie for 60 minutes
+
+        return response()->json([
+            'message' => 'Authenticated',
+            'token' => [
+                'plainTextToken' => $token->plainTextToken
+            ]
+        ])->withCookie($cookie);
     }
- 
-    return $user->createToken($request->device_name)->plainTextToken;
+
+    return response()->json(['error' => 'Unauthorized'], 401);
+});
+
+use Illuminate\Support\Facades\Crypt;
+
+Route::post('/decode-token', function (Request $request) {
+    $encryptedToken = $request->input('token');
+
+    try {
+        // Decrypt the token
+        $decodedToken = Crypt::decryptString($encryptedToken);
+
+        // Return decoded token data
+        return response()->json($decodedToken);
+    } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+        // Handle decryption error
+        return response()->json(['error' => 'Invalid token'], 400);
+    }
 });
 
 
+
 Route::middleware('auth:sanctum')->group(function () {
-    //to delete all users if we create seeder and then we want to delete all 
+    // To delete all users if we create a seeder and then we want to delete all 
     Route::delete('/users/deleteAll', [UserController::class, 'deleteAllUsers']);
     Route::apiResource('users', UserController::class);
 });
