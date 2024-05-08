@@ -2,15 +2,17 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\API\UserController;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\API\RegisterController;
+use App\Http\Controllers\API\LogoutController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Route::get('/user', function (Request $request) {
+//     return $request->user();
+// })->middleware('auth:sanctum');
 
 Route::post('/sanctum/token', function (Request $request) {
     if (Auth::attempt($request->only('email', 'password'))) {
@@ -35,8 +37,6 @@ Route::post('/sanctum/token', function (Request $request) {
     return response()->json(['error' => 'Unauthorized'], 401);
 });
 
-// Custom middleware for role-based authorization
-// Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     Route::delete('/users/deleteAll', function (Request $request) {
         if ($request->user()->role === 'employer') {
@@ -45,4 +45,15 @@ Route::post('/sanctum/token', function (Request $request) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
     })->middleware('auth:sanctum');
-Route::apiResource('users', UserController::class);
+Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
+
+
+
+
+
+Route::controller(RegisterController::class)->group(function(){
+    Route::post('register', 'register');
+    Route::post('login', 'login');
+    
+});
+Route::post('logout',LogoutController::class )->middleware('auth:sanctum');
