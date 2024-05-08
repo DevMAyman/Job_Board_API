@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\LogoutController;
 use App\Http\Controllers\API\ApplicationController; // Corrected namespace
-use App\Http\Controllers\Api\JobListingController;
+use App\Http\Controllers\API\JobListingController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
