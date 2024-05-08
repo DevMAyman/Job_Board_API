@@ -38,8 +38,11 @@ Route::post('/sanctum/token', function (Request $request) {
 // Custom middleware for role-based authorization
 // Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
-Route::middleware(['auth:sanctum', 'role'])->group(function () {
-    Route::delete('/users/deleteAll', [UserController::class, 'deleteAllUsers']);
-    Route::apiResource('users', UserController::class);
-});
-
+    Route::delete('/users/deleteAll', function (Request $request) {
+        if ($request->user()->role === 'employer') {
+            return (new UserController())->deleteAllUsers($request);
+        } else {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    })->middleware('auth:sanctum');
+Route::apiResource('users', UserController::class);
