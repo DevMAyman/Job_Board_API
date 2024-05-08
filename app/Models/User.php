@@ -6,9 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
+    use HasApiTokens;
     use HasFactory, Notifiable;
 
     /**
@@ -20,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -44,4 +48,17 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    //  public function createToken($name, $user_id,array $abilities = ['*'])
+    // {
+    //     var_dump("Mo");
+    //     $token = $this->tokens()->create([
+    //         'name' => $name,
+    //         'token' => hash('sha256', Str::random(40)),
+    //         'abilities' => $abilities,
+    //         'user_id' => $user_id, // Assigning the user ID to the token
+    //     ]);
+
+    //     return new NewAccessToken($token, $token->id.'|'.$token->token);
+    // }
 }
