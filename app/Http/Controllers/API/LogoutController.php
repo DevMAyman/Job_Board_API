@@ -24,7 +24,7 @@ class LogoutController extends BaseController
      * @return \Illuminate\Http\Response
      */
     public function __invoke(Request $request){
-        $user = $request->user;
+        $user = $request->user();
         $user->tokens()->delete();
         return response()->noContent();
     }
