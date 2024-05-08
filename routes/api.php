@@ -18,11 +18,12 @@ Route::post('/sanctum/token', function (Request $request) {
     if (Auth::attempt($request->only('email', 'password'))) {
         $user = Auth::user();
 
+        // Customize the token payload
         $userData = [
             'id' => $user->id,
             'name' => $user->name,
-            'email' => $user->email,
             'role' => $user->role,
+            // Add any other user data you want to include
         ];
 
         // Create a token with Sanctum and attach it to the user
@@ -34,29 +35,13 @@ Route::post('/sanctum/token', function (Request $request) {
         return response()->json([
             'message' => 'Authenticated',
             'token' => [
-                'plainTextToken' => $token->plainTextToken
+                'plainTextToken' => $token->plainTextToken,
+                'user' => $userData // Include user data in the response
             ]
         ])->withCookie($cookie);
     }
 
     return response()->json(['error' => 'Unauthorized'], 401);
-});
-
-use Illuminate\Support\Facades\Crypt;
-
-Route::post('/decode-token', function (Request $request) {
-    $encryptedToken = $request->input('token');
-
-    try {
-        // Decrypt the token
-        $decodedToken = Crypt::decryptString($encryptedToken);
-
-        // Return decoded token data
-        return response()->json($decodedToken);
-    } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
-        // Handle decryption error
-        return response()->json(['error' => 'Invalid token'], 400);
-    }
 });
 
 
