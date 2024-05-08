@@ -14,31 +14,8 @@ use App\Http\Controllers\API\LogoutController;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-Route::post('/sanctum/token', function (Request $request) {
-    if (Auth::attempt($request->only('email', 'password'))) {
-        $user = Auth::user();
-
-        $userData = [
-            'name' => $user->name,
-            'role' => $user->role,
-        ];
-
-        $token = $user->createToken($request->device_name, ['userData' => $userData]);
-
-        return response()->json([
-            'message' => 'Authenticated',
-            'token' => [
-                'plainTextToken' => $token->plainTextToken,
-                'user' => $userData 
-            ]
-        ]);
-    }
-
-    return response()->json(['error' => 'Unauthorized'], 401);
-});
-
-
-    Route::delete('/users/deleteAll', function (Request $request) {
+Route::post('/login', [UserController::class, 'login']);
+Route::delete('/users/deleteAll', function (Request $request) {
         if ($request->user()->role === 'employer') {
             return (new UserController())->deleteAllUsers($request);
         } else {
@@ -48,12 +25,9 @@ Route::post('/sanctum/token', function (Request $request) {
 Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
 
 
-
-
-
 Route::controller(RegisterController::class)->group(function(){
     Route::post('register', 'register');
-    Route::post('login', 'login');
+    // Route::post('login', 'login');
     
 });
 Route::post('logout',LogoutController::class )->middleware('auth:sanctum');
