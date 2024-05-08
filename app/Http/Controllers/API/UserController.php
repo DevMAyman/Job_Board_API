@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\API\BaseController as BaseController;
+use Illuminate\Http\Response;
 
-class UserController extends Controller
+class UserController extends BaseController
 {
 //_________________________________get_all_users____________________________________
 
@@ -40,10 +44,37 @@ class UserController extends Controller
 
 //_________________________________update_specific_user____________________________________
 
-    public function update(Request $request, User $user)
-    {
-        //
+public function update(Request $request, User $user): JsonResponse
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'sometimes|required',
+        'email' => 'sometimes|required|email',
+        'password' => 'nullable',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation Error.',
+            'errors' => $validator->errors(),
+        ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
+
+    $input = $request->only(['name', 'email']); 
+
+    $user->update($input);
+
+    if ($request->filled('password')) {
+        $user->password = bcrypt($request->password);
+        $user->save();
+    }
+
+    $success['message'] = 'Your Profile is updated successfully.';
+    $success['user'] = $user;
+
+    return $this->sendResponse($success, 'Your Profile is updated successfully.');
+}
+
 
 //_________________________________delete_specific_user____________________________________
 

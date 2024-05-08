@@ -13,7 +13,6 @@ use App\Http\Controllers\API\LogoutController;
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
 // })->middleware('auth:sanctum');
-
 Route::post('/login', [UserController::class, 'login']);
 Route::delete('/users/deleteAll', function (Request $request) {
         if ($request->user()->role === 'employer') {
@@ -22,6 +21,7 @@ Route::delete('/users/deleteAll', function (Request $request) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
     })->middleware('auth:sanctum');
+
 Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
 
 
