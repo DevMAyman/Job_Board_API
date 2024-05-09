@@ -23,6 +23,14 @@ class ApplicationController extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'phoneNumber' => 'required',
+            'resume' => 'required|file'
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422); 
+        }
         $application = new Application();
         $application->email = $request->input('email');
         $application->phoneNumber = $request->input('phoneNumber');
