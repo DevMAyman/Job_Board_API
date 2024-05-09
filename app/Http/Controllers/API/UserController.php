@@ -37,10 +37,21 @@ class UserController extends BaseController
     
 //_________________________________display_specific_user____________________________________
 
-    public function show(User $user)
-    {
-        
+public function show(Request $request)
+{
+    $user = $request->user();
+
+    if (!$user) {
+        return response()->json(['error' => 'User not authenticated'], 401);
     }
+
+    return response()->json([
+        'name' => $user->name,
+        'email' => $user->email,
+        'role' => $user->role,
+    ], 200);
+}
+
 
 //_________________________________update_specific_user____________________________________
 
