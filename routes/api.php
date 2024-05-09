@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
@@ -9,6 +8,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\LogoutController;
+use App\Http\Controllers\API\ApplicationController; // Corrected namespace
+use App\Http\Controllers\API\JobListingController;
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
@@ -31,3 +32,12 @@ Route::controller(RegisterController::class)->group(function(){
     
 });
 Route::post('logout',LogoutController::class )->middleware('auth:sanctum');
+
+
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+
+Route::post('/applications', [ApplicationController::class, 'store']);
+
+Route::apiResource('/jobs', JobListingController::class);
