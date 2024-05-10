@@ -33,7 +33,7 @@ class JobListingFactory extends Factory
             'work_type' => $this->faker->randomElement(['on-site', 'remote', 'hybrid']),
             'application_deadline' => $this->faker->dateTimeBetween('tomorrow', '+1 month'),
             'logo' => 'https://t3.ftcdn.net/jpg/05/56/23/24/360_F_556232429_rEzqcNG3dwJlhlxlShtfPYOJ4BcZBSlW.jpg',
-            'status' => $this->faker->randomElement(['active', 'inactive']),
+            'status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
         ];
     }
 }
