@@ -12,4 +12,7 @@ class Application extends Model
     public function User(){
         return $this->belongsTo(User::class);
     }
+    public function JobListing(){
+        return $this->belongsTo(JobListing::class);
+    }
 }
