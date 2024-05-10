@@ -110,11 +110,12 @@ public function update(Request $request, User $user): JsonResponse
             return response()->json([
                 'message' => 'Authenticated Succeed , Now You Are Logged In',
                 'token' => $token,
-                'name' => $user->name 
+                'name' => $user->name ,
+                'role'=>  $user->role
             ]);
         }
 
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Email or password is not correct !'], 401);
     }
 
 //_________________________________logout_delete_token____________________________________
