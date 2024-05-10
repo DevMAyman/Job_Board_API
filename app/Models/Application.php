@@ -9,4 +9,7 @@ class Application extends Model
 {
     use HasFactory;
     protected $fillable = ['email','phoneNumber','resume','status'];
+    public function User(){
+        return $this->belongsTo(User::class);
+    }
 }
