@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\jobListing;
+use App\Models\JobListing;
+use App\Utilities\QueryParamHandler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Exception;
@@ -14,10 +15,15 @@ class JobListingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $jobs = jobListing::all();
-        return $jobs;
+        $query = JobListing::query();
+
+        $searchFields = ['title', 'description', 'location'];
+
+        $result = QueryParamHandler::handle($query, $request->all(), $searchFields);
+
+        return response()->json($result);
     }
 
     /**
