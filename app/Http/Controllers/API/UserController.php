@@ -119,4 +119,10 @@ public function update(Request $request, User $user): JsonResponse
 
 //_________________________________logout_delete_token____________________________________
 
+
+
+//_________________________________upload_image____________________________________
+
+
+
 }

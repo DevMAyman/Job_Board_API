@@ -8,9 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
+use CloudinaryLabs\CloudinaryLaravel\MediaAlly;
 
 class User extends Authenticatable
 {
+    use MediaAlly;
+
     use HasApiTokens;
     use HasFactory, Notifiable;
 
@@ -22,6 +25,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'image',
         'password',
         'role',
     ];

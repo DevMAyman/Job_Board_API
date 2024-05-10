@@ -15,6 +15,7 @@ use App\Http\Controllers\API\JobListingController;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 Route::post('/login', [UserController::class, 'login']);
+// Route::post('/user/profile', [UserController::class, 'updateAvatar'])->middleware('auth:sanctum');
 Route::delete('/users/deleteAll', function (Request $request) {
         if ($request->user()->role === 'employer') {
             return (new UserController())->deleteAllUsers($request);
@@ -22,7 +23,7 @@ Route::delete('/users/deleteAll', function (Request $request) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
     })->middleware('auth:sanctum');
-
+    
 Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
 
 
