@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
@@ -16,22 +17,22 @@ use App\Http\Controllers\API\JobListingController;
 // })->middleware('auth:sanctum');
 Route::post('/login', [UserController::class, 'login']);
 Route::delete('/users/deleteAll', function (Request $request) {
-        if ($request->user()->role === 'employer') {
-            return (new UserController())->deleteAllUsers($request);
-        } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-    })->middleware('auth:sanctum');
+    if ($request->user()->role === 'employer') {
+        return (new UserController())->deleteAllUsers($request);
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+})->middleware('auth:sanctum');
 
 Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
 
 
-Route::controller(RegisterController::class)->group(function(){
+Route::controller(RegisterController::class)->group(function () {
     Route::post('register', 'register');
     // Route::post('login', 'login');
-    
+
 });
-Route::post('logout',LogoutController::class )->middleware('auth:sanctum');
+Route::post('logout', LogoutController::class)->middleware('auth:sanctum');
 
 
 Route::get('/user', function (Request $request) {
@@ -40,4 +41,4 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('/applications', ApplicationController::class);
 
-Route::apiResource('/jobs', JobListingController::class);
+Route::apiResource('/jobs', JobListingController::class)->middleware('auth:sanctum');

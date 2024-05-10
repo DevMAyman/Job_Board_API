@@ -39,8 +39,13 @@ class JobListingController extends Controller
 
         try {
             $input = $request->all();
-            $input['user_id'] = auth()->user()->id;
-            // dd($input);
+
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json(['error' => 'User not authenticated'], 401);
+            }
+            $input['user_id'] = $user->id;
             if ($request->hasFile('logo')) {
                 $uploadedFile = cloudinary()->upload($request->file('logo')->getRealPath());
                 $input['logo'] = $uploadedFile->getSecurePath(); // Assigning the logo path to the 'logo' field in $input array
