@@ -7,11 +7,27 @@ use App\Models\JobListing;
 use App\Utilities\QueryParamHandler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\API\RegisterController;
 use Exception;
 
 
 class JobListingController extends Controller
 {
+    public function specifyRole($request, $role)
+    {
+        $currentRequestPersonalAccessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($request->bearerToken());
+        if ($currentRequestPersonalAccessToken) {
+            $userRole = $currentRequestPersonalAccessToken->tokenable->role;
+            var_dump($role, $userRole);
+            if ($role !== $userRole) {
+                return "You are not $userRole to access that! 😏";
+            }
+        } else {
+            return "You must send token";
+        }
+        return 'Matched';
+    }
     /**
      * Display a listing of the resource.
      */
@@ -31,6 +47,11 @@ class JobListingController extends Controller
      */
     public function store(Request $request)
     {
+        $message = $this->specifyRole($request, 'employer');
+        if ($message !== 'Matched') {
+            return new JsonResponse($message, 401);
+        }
+
         $validator = Validator::make($request->all(), JobListing::$rules);
 
         if ($validator->fails()) {
@@ -39,7 +60,6 @@ class JobListingController extends Controller
 
         try {
             $input = $request->all();
-
             $user = $request->user();
 
             if (!$user) {
