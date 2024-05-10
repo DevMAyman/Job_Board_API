@@ -9,7 +9,7 @@ class JobListing extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'title', 'description', 'responsibilities', 'skills', 'qualifications', 'salary_range', 'benefits', 'location', 'work_type', 'application_deadline', 'logo', 'status'
+        'title', 'description', 'responsibilities', 'skills', 'qualifications', 'salary_range', 'benefits', 'location', 'work_type', 'application_deadline', 'logo', 'status,user_id'
     ];
     public static $rules = [
         'title' => 'required|max:255',
@@ -24,4 +24,8 @@ class JobListing extends Model
         'application_deadline' => 'required|date|after:tomorrow',
         'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

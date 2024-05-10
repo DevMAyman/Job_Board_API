@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\jobListing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Exception;
+
 
 class JobListingController extends Controller
 {
@@ -23,17 +25,28 @@ class JobListingController extends Controller
      */
     public function store(Request $request)
     {
-
         $validator = Validator::make($request->all(), JobListing::$rules);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $jobListing = JobListing::create($request->all());
+        try {
+            $input = $request->all();
+            $input['user_id'] = auth()->user()->id;
+            // dd($input);
+            if ($request->hasFile('logo')) {
+                $uploadedFile = cloudinary()->upload($request->file('logo')->getRealPath());
+                $input['logo'] = $uploadedFile->getSecurePath(); // Assigning the logo path to the 'logo' field in $input array
+            }
+            $jobListing = JobListing::create($input);
 
-        return response()->json($jobListing, 201);
+            return response()->json($jobListing, 201);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Error while storing the application', 'error' => $e->getMessage()], 500);
+        }
     }
+
 
     /**
      * Display the specified resource.
