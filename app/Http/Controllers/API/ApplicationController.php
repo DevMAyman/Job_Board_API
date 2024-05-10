@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Log;
 use Exception;
+use Carbon\Carbon;
 
 class ApplicationController extends Controller
 {
@@ -17,6 +20,50 @@ class ApplicationController extends Controller
     {
         $applications = Application::all();
         return $applications;
+    }
+
+    public function pollForUpdates(Request $request)
+    {
+        // Retrieve the 'lastModified' parameter from the client
+        $lastModified = $request->input('lastModified', 0);
+
+        // Get the latest update time for the applications
+        $latestUpdate = Application::orderBy('updated_at', 'desc')->first();
+        $latestModifiedTime = $latestUpdate ? $latestUpdate->updated_at->timestamp : 0;
+        // dd($latestModifiedTime);
+        // Hold the connection until an update occurs or a timeout is reached
+        $timeout = 60; // Set a timeout in seconds
+        $startTime = time();
+
+        while (time() - $startTime < $timeout) {
+            // Check if the data has been updated since the last client check
+            if ($latestModifiedTime > $lastModified) {
+                // Retrieve the updated application(s)
+                $updatedApplications = Application::where('updated_at', '>', Carbon::createFromTimestamp($lastModified, 'UTC'))->get();
+                // dd($updatedApplications);
+                // Prepare the response data
+                $response = [
+                    'status' => 'update',
+                    'applications' => $updatedApplications,
+                    'server_time' => $latestModifiedTime,
+                ];
+
+                return Response::json($response,200);
+            }
+
+            // Sleep briefly to avoid high CPU usage
+            sleep(3);
+
+            // Recheck the latest update time
+            $latestUpdate = Application::orderBy('updated_at', 'desc')->first();
+            $latestModifiedTime = $latestUpdate ? $latestUpdate->updated_at->timestamp : 0;
+        }
+
+        // If no update within the timeout, return a no-change response
+        return Response::json([
+            'status' => 'no_change',
+            'server_time' => $latestModifiedTime,
+        ]);
     }
 
     /**

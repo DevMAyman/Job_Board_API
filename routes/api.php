@@ -41,3 +41,5 @@ Route::get('/user', function (Request $request) {
 Route::apiResource('/applications', ApplicationController::class);
 
 Route::apiResource('/jobs', JobListingController::class);
+
+Route::post('/polling', [ApplicationController::class, 'pollForUpdates']);
