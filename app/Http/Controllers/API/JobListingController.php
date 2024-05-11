@@ -117,6 +117,7 @@ class JobListingController extends Controller
     public function destroy(jobListing $job)
     {
         $job->delete();
+
         return response()->json(['message' => 'Job listing deleted successfully'], 200);
     }
 }

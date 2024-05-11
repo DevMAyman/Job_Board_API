@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class JobListing extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'title', 'description', 'responsibilities', 'skills', 'qualifications', 'salary_range', 'benefits', 'location', 'work_type', 'application_deadline', 'logo', 'status', 'user_id', 'number'
     ];
+
     public static $rules = [
         'title' => 'required|max:255',
         'description' => 'required',
