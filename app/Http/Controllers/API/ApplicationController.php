@@ -24,24 +24,18 @@ class ApplicationController extends Controller
 
     public function pollForUpdates(Request $request)
     {
-        // Retrieve the 'lastModified' parameter from the client
         $lastModified = $request->input('lastModified', 0);
 
-        // Get the latest update time for the applications
         $latestUpdate = Application::orderBy('updated_at', 'desc')->first();
         $latestModifiedTime = $latestUpdate ? $latestUpdate->updated_at->timestamp : 0;
-        // dd($latestModifiedTime);
-        // Hold the connection until an update occurs or a timeout is reached
-        $timeout = 60; // Set a timeout in seconds
+
+        $timeout = 60;
         $startTime = time();
 
         while (time() - $startTime < $timeout) {
-            // Check if the data has been updated since the last client check
             if ($latestModifiedTime > $lastModified) {
-                // Retrieve the updated application(s)
                 $updatedApplications = Application::where('updated_at', '>', Carbon::createFromTimestamp($lastModified, 'UTC'))->get();
-                // dd($updatedApplications);
-                // Prepare the response data
+ 
                 $response = [
                     'status' => 'update',
                     'applications' => $updatedApplications,
@@ -51,15 +45,12 @@ class ApplicationController extends Controller
                 return Response::json($response,200);
             }
 
-            // Sleep briefly to avoid high CPU usage
             sleep(3);
 
-            // Recheck the latest update time
             $latestUpdate = Application::orderBy('updated_at', 'desc')->first();
             $latestModifiedTime = $latestUpdate ? $latestUpdate->updated_at->timestamp : 0;
         }
 
-        // If no update within the timeout, return a no-change response
         return Response::json([
             'status' => 'no_change',
             'server_time' => $latestModifiedTime,
