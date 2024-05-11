@@ -7,4 +7,3 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::apiResource("applications", ApplicationController::class);

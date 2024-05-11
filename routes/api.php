@@ -40,5 +40,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::apiResource('/applications', ApplicationController::class)->middleware('auth:sanctum');
+Route::get('/applications/job-listings/{job_listings_id}', [ApplicationController::class, 'getJobApplications']);
+Route::get('/applications/users/{user_id}', [ApplicationController::class, 'getUserApplications']);
+
 
 Route::apiResource('/jobs', JobListingController::class)->middleware('auth:sanctum');
