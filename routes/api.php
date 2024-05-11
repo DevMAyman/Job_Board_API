@@ -39,8 +39,6 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::apiResource('/applications', ApplicationController::class);
+Route::apiResource('/applications', ApplicationController::class)->middleware('auth:sanctum');
 
-Route::apiResource('/jobs', JobListingController::class);
-
-Route::post('/polling', [ApplicationController::class, 'pollForUpdates']);
+Route::apiResource('/jobs', JobListingController::class)->middleware('auth:sanctum');

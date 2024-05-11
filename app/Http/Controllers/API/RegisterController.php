@@ -34,13 +34,16 @@ class RegisterController extends BaseController
     public function register(Request $request): JsonResponse
     {
         try {
-            $currentRequestPersonalAccessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($request->bearerToken());
-            if ($currentRequestPersonalAccessToken) {
-                $role = $currentRequestPersonalAccessToken->tokenable->role;
-                if ($role != 'admin' && $request->role == 'admin') {
+            if ($request->role == 'admin') {
+                $currentRequestPersonalAccessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($request->bearerToken());
+                if ($currentRequestPersonalAccessToken) {
+                    $role = $currentRequestPersonalAccessToken->tokenable->role;
+                    if ($role != 'admin' && $request->role == 'admin') {
+                        return new JsonResponse(['message' => 'You are not an admin to add admin !😏', 'role' => $role], 401);
+                    }
+                } else {
+                    return new JsonResponse(['message' => 'You are not an admin to add admin !😏'], 401);
                 }
-            } else {
-                return new JsonResponse('You are not an admin to add admin !😏');
             }
 
 
