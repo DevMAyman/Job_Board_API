@@ -38,41 +38,6 @@ class ApplicationController extends Controller
         return $applications;
     }
 
-    public function pollForUpdates(Request $request)
-    {
-        $lastModified = $request->input('lastModified', 0);
-
-        $latestUpdate = Application::orderBy('updated_at', 'desc')->first();
-        $latestModifiedTime = $latestUpdate ? $latestUpdate->updated_at->timestamp : 0;
-
-        $timeout = 60;
-        $startTime = time();
-
-        while (time() - $startTime < $timeout) {
-            if ($latestModifiedTime > $lastModified) {
-                $updatedApplications = Application::where('updated_at', '>', Carbon::createFromTimestamp($lastModified, 'UTC'))->get();
- 
-                $response = [
-                    'status' => 'update',
-                    'applications' => $updatedApplications,
-                    'server_time' => $latestModifiedTime,
-                ];
-
-                return Response::json($response,200);
-            }
-
-            sleep(3);
-
-            $latestUpdate = Application::orderBy('updated_at', 'desc')->first();
-            $latestModifiedTime = $latestUpdate ? $latestUpdate->updated_at->timestamp : 0;
-        }
-
-        return Response::json([
-            'status' => 'no_change',
-            'server_time' => $latestModifiedTime,
-        ]);
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -126,7 +91,7 @@ class ApplicationController extends Controller
      */
     public function update(Request $request, Application $application)
     {
-        $hasRequiredField = $request->hasAny(['email', 'phoneNumber']) || $request->hasFile('resume');
+        $hasRequiredField = $request->hasAny(['email', 'phoneNumber','status']) || $request->hasFile('resume');
 
         if (!$hasRequiredField) {
             return response()->json(['errors' => 'At least one of email, phoneNumber, or resume must be provided.'], 422);
@@ -136,6 +101,7 @@ class ApplicationController extends Controller
             'email' => 'nullable|email',
             'phoneNumber' => 'nullable|string',
             'resume' => 'file|mimes:pdf,doc,docx,odt',
+            'status' => 'nullable|string'
         ]);
 
         if ($validator->fails()) {
@@ -152,6 +118,9 @@ class ApplicationController extends Controller
             if ($request->hasFile('resume')) {
                 $uploadedFile = cloudinary()->upload($request->file('resume')->getRealPath());
                 $application->resume = $uploadedFile->getSecurePath();
+            }
+            if ($request->has('status')) {
+                $application->status = $request->input('status');
             }
             $application->save();
 
@@ -170,4 +139,25 @@ class ApplicationController extends Controller
         $application->delete();
         return response()->json(['message' => "the application deleted", 'status_code' => 204], 204);
     }
+
+    public function getJobApplications($jobListingsId){
+        try {
+            $applications = Application::where('job_listings_id', $jobListingsId)->get();
+    
+            return response()->json(['applications' => $applications], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to retrieve applications', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getUserApplications($userId){
+        try {
+            $applications = Application::where('user_id', $userId)->get();
+    
+            return response()->json(['applications' => $applications], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to retrieve applications', 'error' => $e->getMessage()], 500);
+        }
+    }
+
 }
