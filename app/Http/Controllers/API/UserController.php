@@ -9,9 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\API\BaseController as BaseController;
-use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 
 class UserController extends BaseController

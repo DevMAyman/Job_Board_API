@@ -7,10 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Validator;
-use Illuminate\Http\JsonResponse;
 
 class RegisterController extends BaseController
 {
@@ -118,8 +116,6 @@ class RegisterController extends BaseController
         } else {
             return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
         }
-        } else {
-            return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
         }
     }
-}
+
