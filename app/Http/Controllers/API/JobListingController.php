@@ -62,9 +62,9 @@ class JobListingController extends Controller
             $input = $request->all();
             $user = $request->user();
 
-            if (!$user) {
-                return response()->json(['error' => 'User not authenticated'], 401);
-            }
+            // if (!$user) {
+            //     return response()->json(['error' => 'User not authenticated'], 401);
+            // }
             $input['user_id'] = $user->id;
             if ($request->hasFile('logo')) {
                 $uploadedFile = cloudinary()->upload($request->file('logo')->getRealPath());
@@ -97,13 +97,18 @@ class JobListingController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
-        // Update the job listing with the validated data
-        $job->fill($request->all());
-        $job->save();
-
-        // Return the updated job listing
-        return response()->json($job, 200);
+        try {
+            $input = $request->all();
+            if ($request->hasFile('logo')) {
+                $uploadedFile = cloudinary()->upload($request->file('logo')->getRealPath());
+                $input['logo'] = $uploadedFile->getSecurePath(); // Assigning the logo path to the 'logo' field in $input array
+            }
+            $job->fill($input);
+            $job->save();
+            return response()->json($job, 200);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Error while storing the application', 'error' => $e->getMessage()], 500);
+        }
     }
 
     /**
