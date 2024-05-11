@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
@@ -17,28 +18,31 @@ use App\Http\Controllers\API\JobListingController;
 Route::post('/login', [UserController::class, 'login']);
 // Route::post('/user/profile', [UserController::class, 'updateAvatar'])->middleware('auth:sanctum');
 Route::delete('/users/deleteAll', function (Request $request) {
-        if ($request->user()->role === 'employer') {
-            return (new UserController())->deleteAllUsers($request);
-        } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-    })->middleware('auth:sanctum');
-    
+    if ($request->user()->role === 'employer') {
+        return (new UserController())->deleteAllUsers($request);
+    } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+})->middleware('auth:sanctum');
+
 Route::apiResource('users', UserController::class)->middleware('auth:sanctum');
 
 
-Route::controller(RegisterController::class)->group(function(){
+Route::controller(RegisterController::class)->group(function () {
     Route::post('register', 'register');
     // Route::post('login', 'login');
-    
+
 });
-Route::post('logout',LogoutController::class )->middleware('auth:sanctum');
+Route::post('logout', LogoutController::class)->middleware('auth:sanctum');
 
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('/applications', [ApplicationController::class, 'store']);
+Route::apiResource('/applications', ApplicationController::class)->middleware('auth:sanctum');
+Route::get('/applications/job-listings/{job_listings_id}', [ApplicationController::class, 'getJobApplications']);
+Route::get('/applications/users/{user_id}', [ApplicationController::class, 'getUserApplications']);
 
-Route::apiResource('/jobs', JobListingController::class);
+
+Route::apiResource('/jobs', JobListingController::class)->middleware('auth:sanctum');
