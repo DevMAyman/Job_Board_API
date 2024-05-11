@@ -61,4 +61,11 @@ class User extends Authenticatable
 
     //     return new NewAccessToken($token, $token->id.'|'.$token->token);
     // }
+    public function jobListings()
+    {
+        return $this->hasMany(JobListing::class);
+    }
+    public function Application(){
+        return $this->hasMany(Application::class);
+    }
 }

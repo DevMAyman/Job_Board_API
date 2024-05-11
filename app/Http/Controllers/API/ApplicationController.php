@@ -6,10 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\JsonResponse;
 use Exception;
+use Carbon\Carbon;
 
 class ApplicationController extends Controller
 {
+    public function specifyRole($request, $role)
+    {
+        $currentRequestPersonalAccessToken = \Laravel\Sanctum\PersonalAccessToken::findToken($request->bearerToken());
+        if ($currentRequestPersonalAccessToken) {
+            $userRole = $currentRequestPersonalAccessToken->tokenable->role;
+            var_dump($role, $userRole);
+            if ($role !== $userRole) {
+                return "You are not $userRole to access that! 😏";
+            }
+        } else {
+            return "You must send token";
+        }
+        return 'Matched';
+    }
     /**
      * Display a listing of the resource.
      */
@@ -19,26 +37,71 @@ class ApplicationController extends Controller
         return $applications;
     }
 
+    public function pollForUpdates(Request $request)
+    {
+        $lastModified = $request->input('lastModified', 0);
+
+        $latestUpdate = Application::orderBy('updated_at', 'desc')->first();
+        $latestModifiedTime = $latestUpdate ? $latestUpdate->updated_at->timestamp : 0;
+
+        $timeout = 60;
+        $startTime = time();
+
+        while (time() - $startTime < $timeout) {
+            if ($latestModifiedTime > $lastModified) {
+                $updatedApplications = Application::where('updated_at', '>', Carbon::createFromTimestamp($lastModified, 'UTC'))->get();
+ 
+                $response = [
+                    'status' => 'update',
+                    'applications' => $updatedApplications,
+                    'server_time' => $latestModifiedTime,
+                ];
+
+                return Response::json($response,200);
+            }
+
+            sleep(3);
+
+            $latestUpdate = Application::orderBy('updated_at', 'desc')->first();
+            $latestModifiedTime = $latestUpdate ? $latestUpdate->updated_at->timestamp : 0;
+        }
+
+        return Response::json([
+            'status' => 'no_change',
+            'server_time' => $latestModifiedTime,
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
+
+        $message = $this->specifyRole($request, 'candidate');
+        if ($message !== 'Matched') {
+            return new JsonResponse($message, 401);
+        }
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'phoneNumber' => 'required',
-            'resume' => 'required|file|mimes:pdf,doc,docx,odt'
+            'resume' => 'required|file|mimes:pdf,doc,docx,odt',
+            'job_listings_id' => 'required'
         ]);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+        $user = $request->user();
         try {
             if ($request->hasFile('resume')) {
                 $uploadedFile = cloudinary()->upload($request->file('resume')->getRealPath());
                 $application = new Application();
                 $application->email = $request->input('email');
                 $application->phoneNumber = $request->input('phoneNumber');
+                $application->job_listings_id = $request->input('job_listings_id');
                 $application->resume = $uploadedFile->getSecurePath();
+                $application->user_id = $user->id;
                 $application->save();
                 return $application;
             } else {
