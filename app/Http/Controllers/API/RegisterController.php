@@ -76,7 +76,7 @@ class RegisterController extends BaseController
             $input = $request->all();
             $input['password'] = bcrypt($input['password']);
             $input['image'] = $uploadedFile;
-            $user = null;
+            $user = null;        
             try {
                 $user = User::create($input);
             } catch (\Exception $e) {

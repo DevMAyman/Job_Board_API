@@ -41,15 +41,14 @@ public function index(Request $request)
 
     $usersQuery = $role ? User::where('role', $role) : User::query();
 
-    $users = $usersQuery->with(['application' => function ($query) {
+    $users = $usersQuery->with(['applications' => function ($query) {
             $query->select('user_id', 'status');
-        }, 'jobListings' => function ($query) {
-            $query->withCount('application');
+        }, 'job_listings' => function ($query) {
+            $query->withCount('applications');
         }])
         ->paginate(10);
-
     $users->each(function ($user) {
-        $user->applications = $user->application->groupBy('status');
+        $user->applications = $user->applications->groupBy('status');
     });
 
     return $users;
