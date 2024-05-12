@@ -39,19 +39,15 @@ public function index(Request $request)
 {
     $role = $request->query('role');
 
-    // Retrieve users along with their applications based on the role
     $usersQuery = $role ? User::where('role', $role) : User::query();
 
-    // Eager load applications with conditions for each status and jobListings
     $users = $usersQuery->with(['application' => function ($query) {
             $query->select('user_id', 'status');
         }, 'jobListings' => function ($query) {
-            // Include the count of applications for each job listing
             $query->withCount('application');
         }])
         ->paginate(10);
 
-    // Group applications by status within each user object
     $users->each(function ($user) {
         $user->applications = $user->application->groupBy('status');
     });
