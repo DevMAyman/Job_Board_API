@@ -14,18 +14,65 @@ class UserController extends BaseController
 {
     //_________________________________get_all_users____________________________________
 
-    public function index(Request $request)
-    {
-     $role = $request->query('role');
+// public function index(Request $request)
+// {
+//     $role = $request->query('role');
 
-    if ($role) {
-        $users = User::where('role', $role)->paginate(10);
-    } else {
-        $users = User::paginate(10);
-    }
+//     // Retrieve users along with their applications based on the role
+//     $usersQuery = $role ? User::where('role', $role) : User::query();
+
+//     // Eager load applications with conditions for each status
+//     $users = $usersQuery->with(['application' => function ($query) {
+//             $query->select('user_id', 'status');
+//         }, 'jobListings'])
+//         ->paginate(10);
+
+//     // Group applications by status within each user object
+//     $users->each(function ($user) {
+//         $user->applications = $user->application->groupBy('status');
+//     });
+
+//     return $users;
+// }
+
+public function index(Request $request)
+{
+    $role = $request->query('role');
+
+    // Retrieve users along with their applications based on the role
+    $usersQuery = $role ? User::where('role', $role) : User::query();
+
+    // Eager load applications with conditions for each status and jobListings
+    $users = $usersQuery->with(['application' => function ($query) {
+            $query->select('user_id', 'status');
+        }, 'jobListings' => function ($query) {
+            // Include the count of applications for each job listing
+            $query->withCount('application');
+        }])
+        ->paginate(10);
+
+    // Group applications by status within each user object
+    $users->each(function ($user) {
+        $user->applications = $user->application->groupBy('status');
+    });
 
     return $users;
-    }
+}
+
+
+
+
+// public function index(Request $request)
+// {
+//     $role = $request->query('role');
+
+//     // Retrieve users along with their applications and jobs
+//     $users = User::with(['application', 'jobListings'])->get();
+
+//     return $users;
+// }
+
+
 
     //_________________________________register_user____________________________________
 
