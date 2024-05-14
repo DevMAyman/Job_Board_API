@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\JobListing;
 use Illuminate\Database\Eloquent\Factories\Factory;
-
+use App\Models\User;
 class JobListingFactory extends Factory
 {
     /**
@@ -22,6 +22,7 @@ class JobListingFactory extends Factory
     public function definition()
     {
         return [
+            'user_id' => User::factory(),
             'title' => $this->faker->jobTitle,
             'description' => $this->faker->paragraph,
             'responsibilities' => $this->faker->paragraph,
