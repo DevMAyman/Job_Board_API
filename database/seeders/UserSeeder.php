@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
 {
@@ -13,9 +12,9 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        //generating seeeder to create random 20 user candidates and employers 
-        User::factory()->count(10)->state(['role' => 'employer'])->create();
-        User::factory()->count(10)->state(['role' => 'candidate'])->create();
+        //generating seeeder to create random 20 user candidates and employers
+        User::factory()->count(10)->state(['role' => 'employer', 'image' => 'my image'])->create();
+        User::factory()->count(10)->state(['role' => 'candidate' , 'image' => 'my image'])->create();
 
     }
 }

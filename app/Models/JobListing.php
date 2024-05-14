@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class JobListing extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'title', 'description', 'responsibilities', 'skills', 'qualifications', 'salary_range', 'benefits', 'location', 'work_type', 'application_deadline', 'logo', 'status', 'user_id', 'number'
     ];
+
     public static $rules = [
         'title' => 'required|max:255',
         'description' => 'required',
@@ -24,11 +26,11 @@ class JobListing extends Model
         'application_deadline' => 'required|date|after:tomorrow',
         'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ];
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'job_listings_id');
     }
-    public function Application(){
-        return $this->hasMany(Application::class);
+    public function applications(){
+        return $this->hasMany(Application::class,'job_listings_id');
     }
 }
