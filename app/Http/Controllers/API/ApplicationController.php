@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Models\JobListing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Response;
@@ -91,7 +92,7 @@ class ApplicationController extends Controller
      */
     public function update(Request $request, Application $application)
     {
-        $hasRequiredField = $request->hasAny(['email', 'phoneNumber','status']) || $request->hasFile('resume');
+        $hasRequiredField = $request->hasAny(['email', 'phoneNumber', 'status']) || $request->hasFile('resume');
 
         if (!$hasRequiredField) {
             return response()->json(['errors' => 'At least one of email, phoneNumber, or resume must be provided.'], 422);
@@ -140,24 +141,43 @@ class ApplicationController extends Controller
         return response()->json(['message' => "the application deleted", 'status_code' => 204], 204);
     }
 
-    public function getJobApplications($jobListingsId){
+    public function getJobApplications($jobListingsId)
+    {
         try {
             $applications = Application::where('job_listings_id', $jobListingsId)->get();
-    
+
             return response()->json(['applications' => $applications], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to retrieve applications', 'error' => $e->getMessage()], 500);
         }
     }
 
-    public function getUserApplications($userId){
+    public function getUserApplications($userId)
+    {
         try {
             $applications = Application::where('user_id', $userId)->get();
-    
+
             return response()->json(['applications' => $applications], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Failed to retrieve applications', 'error' => $e->getMessage()], 500);
         }
     }
 
+    public function getUserApplicationsWithJobDetails($user_id)
+    {
+        try {
+            $jobListings = JobListing::where('user_id', $user_id)
+                ->select('id', 'title', 'logo', 'application_deadline')
+                ->get();
+
+            $applications = Application::whereIn('job_listings_id', $jobListings->pluck('id'))
+                ->with(['job_listings'])
+                ->where('status', 'pending')
+                ->get();
+
+            return response()->json(['applications' => $applications], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to retrieve applications', 'error' => $e->getMessage()], 500);
+        }
+    }
 }
