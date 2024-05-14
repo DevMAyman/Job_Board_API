@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\API\RegisterController;
 use Exception;
-
+use Illuminate\Support\Facades\Log;
 
 class JobListingController extends Controller
 {
@@ -35,9 +35,7 @@ class JobListingController extends Controller
     {
         $query = JobListing::query();
 
-        $searchFields = ['title', 'description', 'location'];
-
-        $result = QueryParamHandler::handle($query, $request->all(), $searchFields);
+        $result = QueryParamHandler::handle($query, $request->all());
 
         return response()->json($result);
     }
