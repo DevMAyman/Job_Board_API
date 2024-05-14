@@ -41,4 +41,4 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('/applications', ApplicationController::class)->middleware('auth:sanctum');
 
-Route::apiResource('/jobs', JobListingController::class)->middleware('auth:sanctum');
+Route::apiResource('/jobs', JobListingController::class);
