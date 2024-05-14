@@ -64,6 +64,7 @@ class RegisterController extends BaseController
                 'password' => 'required',
                 'c_password' => 'required|same:password',
                 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                
             ]);
 
             if ($validator->fails()) {
