@@ -7,26 +7,26 @@ use Illuminate\Support\Str;
 
 class QueryParamHandler
 {
-    public static function handle(Builder $query, array $params, array $searchFields)
+    public static function handle(Builder $query, array $params, $searchField=null)
     {
         $maxLimit = 50;
         $page = isset($params['page']) ? max(1, (int)$params['page']) : 1;
         $limit = isset($params['limit']) ? min($maxLimit, max(1, (int)$params['limit'])) : 10;
         $order_by = isset($params['order']) ? $params['order'] : null;
         $search = isset($params['search']) ? $params['search'] : null;
+        if (!$searchField){
+            $searchField = isset($params['searchField']) ? $params['searchField'] : 'name';
+        }
 
-        // Apply search filter if search query is provided
-        if ($search && $searchFields) {
-            $query->where(function ($query) use ($search, $searchFields) {
-                foreach ($searchFields as $field) {
-                    $query->orWhere($field, 'LIKE', "%{$search}%");
-                }
-            });
+        // Apply search filter if search query and searchField are provided
+        if ($search && $searchField) {
+            // dd($searchField, $search);
+            $query->where($searchField, 'LIKE', "%{$search}%");
         }
 
         // Apply additional filters
         foreach ($params as $key => $value) {
-            if (!in_array($key, ['page', 'limit', 'order', 'search'])) {
+            if (!in_array($key, ['page', 'limit', 'order', 'search', 'searchField'])) {
                 $query->where($key, $value);
             }
         }
