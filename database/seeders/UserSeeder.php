@@ -13,8 +13,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         //generating seeeder to create random 20 user candidates and employers
-        User::factory()->count(10)->state(['role' => 'employer', 'image' => 'my image'])->create();
-        User::factory()->count(10)->state(['role' => 'candidate' , 'image' => 'my image'])->create();
-
+        User::factory()->count(20)->state(['role' => 'employer', 'image' => 'my image'])->create();
+        User::factory()->count(10)->state(['role' => 'candidate', 'image' => 'my image'])->create();
     }
 }
