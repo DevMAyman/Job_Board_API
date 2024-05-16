@@ -172,8 +172,7 @@ class ApplicationController extends Controller
 
             $applications = Application::whereIn('job_listings_id', $jobListings->pluck('id'))
                 ->with(['job_listings'])
-                ->where('status', 'pending')
-                ->get();
+                ->paginate(6);
 
             return response()->json(['applications' => $applications], 200);
         } catch (\Exception $e) {
