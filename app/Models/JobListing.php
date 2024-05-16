@@ -24,7 +24,7 @@ class JobListing extends Model
         'location' => 'required|max:100',
         'work_type' => 'required|in:on-site,remote,hybrid',
         'application_deadline' => 'required|date|after:tomorrow',
-        'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'logo' => 'nullable',
     ];
     public function users()
     {
