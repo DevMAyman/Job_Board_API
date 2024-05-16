@@ -27,9 +27,11 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => Hash::make('123456a@'),
             'remember_token' => Str::random(10),
             'role' => $this->faker->randomElement(['candidate', 'employer']),
+            'image' => 'https://ui-avatars.com/api/?name=' . urlencode(fake()->name()) . '&size=400', // Generating avatar images
+
 
         ];
     }
