@@ -84,7 +84,7 @@ class RegisterController extends BaseController
                 if (strpos($e->getMessage(), '1062 Duplicate entry') !== false) {
                     return $this->sendError('Email is used before');
                 } else {
-                    return $this->sendError('User creation failed.');
+                    return $this->sendError($e);
                 }
             }
             $success['token'] = $user->createToken('MyApp')->plainTextToken;
