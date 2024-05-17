@@ -81,10 +81,10 @@ class RegisterController extends BaseController
             try {
                 $user = User::create($input);
             } catch (\Exception $e) {
-                if (strpos($e->getMessage(), '1062 Duplicate entry') !== false) {
+                if (strpos($e->getMessage(), 'email') !== false) {
                     return $this->sendError('Email is used before');
                 } else {
-                    return $this->sendError($e);
+                    return $this->sendError('User creation failed.');
                 }
             }
             $success['token'] = $user->createToken('MyApp')->plainTextToken;
