@@ -52,13 +52,17 @@ class ApplicationController extends Controller
 
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'phoneNumber' => 'required',
+            'phoneNumber' => ['required', 'regex:/^(?:\+20|0020)?1[0125][0-9]{8}$/'],
             'resume' => 'required|file|mimes:pdf,doc,docx,odt',
             'job_listings_id' => 'required'
+        ], [
+            'phoneNumber.regex' => 'The phone number format is invalid. It must be a valid Egyptian mobile number.',
         ]);
+        
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
+        
         $user = $request->user();
         try {
             if ($request->hasFile('resume')) {
