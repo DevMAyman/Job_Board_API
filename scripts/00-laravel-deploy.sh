@@ -11,3 +11,5 @@ php artisan route:cache
 
 echo "Running migrations..."
 php artisan migrate --force
+
+php artisan db:seed --class=UserSeeder
